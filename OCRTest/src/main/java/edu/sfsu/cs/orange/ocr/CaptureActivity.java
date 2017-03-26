@@ -122,7 +122,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private ViewfinderView viewfinderView;
   private SurfaceView surfaceView;
   private SurfaceHolder surfaceHolder;
-  private TextView statusViewBottom;
+  //private TextView statusViewBottom;
   private TextView statusViewTop;
   private TextView ocrResultView;
   private View cameraButtonView;
@@ -175,8 +175,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
     cameraButtonView = findViewById(R.id.camera_button_view);
     resultView = findViewById(R.id.result_view);
-    statusViewBottom = (TextView) findViewById(R.id.status_view_bottom);
-    registerForContextMenu(statusViewBottom);
+//    statusViewBottom = (TextView) findViewById(R.id.status_view_bottom);
+//    registerForContextMenu(statusViewBottom);
     statusViewTop = (TextView) findViewById(R.id.status_view_top);
     registerForContextMenu(statusViewTop);
     ///// add text to speach
@@ -472,7 +472,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
     
     // Turn off capture-related UI elements
-    statusViewBottom.setVisibility(View.GONE);
+    //statusViewBottom.setVisibility(View.GONE);
     statusViewTop.setVisibility(View.GONE);
     cameraButtonView.setVisibility(View.GONE);
     viewfinderView.setVisibility(View.GONE);
@@ -531,8 +531,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
       statusViewTop.getBackground().setAlpha(meanConfidence * (255 / 100));
 
-      if (ocrResult.getMeanConfidence()>60){
-        statusViewTop.setText(ocrResult.getText());
+      if (ocrResult.getMeanConfidence()>70){
+        //statusViewTop.setText(ocrResult.getText());
         Text_to_speech(ocrResult.getText());
       }
     }
@@ -540,9 +540,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     if (CONTINUOUS_DISPLAY_METADATA) {
       // Display recognition-related metadata at the bottom of the screen
       long recognitionTimeRequired = ocrResult.getRecognitionTimeRequired();
-      statusViewBottom.setTextSize(14);
-      statusViewBottom.setText("OCR: " + sourceLanguageReadable + " - Mean confidence: " + 
-          meanConfidence.toString() + " - Time required: " + recognitionTimeRequired + " ms");
+      //statusViewBottom.setTextSize(14);
+//      statusViewBottom.setText("OCR: " + sourceLanguageReadable + " - Mean confidence: " +
+//          meanConfidence.toString() + " - Time required: " + recognitionTimeRequired + " ms");
     }
   }
 
@@ -567,7 +567,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     if (CONTINUOUS_DISPLAY_METADATA) {
       // Color text delimited by '-' as red.
-      statusViewBottom.setTextSize(14);
+      //statusViewBottom.setTextSize(14);
 //      CharSequence cs = setSpanBetweenTokens("OCR: " + sourceLanguageReadable + " - OCR failed - Time required: "
 //          + obj.getTimeRequired() + " ms", "-", new ForegroundColorSpan(0xFFFF0000));
 //      statusViewBottom.setText(cs);
@@ -613,10 +613,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private void resetStatusView() {
     resultView.setVisibility(View.GONE);
     if (CONTINUOUS_DISPLAY_METADATA) {
-      statusViewBottom.setText("");
-      statusViewBottom.setTextSize(14);
-      statusViewBottom.setTextColor(getResources().getColor(R.color.status_text));
-      statusViewBottom.setVisibility(View.VISIBLE);
+//      statusViewBottom.setText("");
+//      statusViewBottom.setTextSize(14);
+//      statusViewBottom.setTextColor(getResources().getColor(R.color.status_text));
+//      statusViewBottom.setVisibility(View.VISIBLE);
     }
     if (CONTINUOUS_DISPLAY_RECOGNIZED_TEXT) {
       statusViewTop.setText("");
@@ -644,7 +644,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   void setStatusViewForContinuous() {
     viewfinderView.removeResultText();
     if (CONTINUOUS_DISPLAY_METADATA) {
-      statusViewBottom.setText("OCR: " + sourceLanguageReadable + " - waiting for OCR...");
+      //statusViewBottom.setText("OCR: " + sourceLanguageReadable + " - waiting for OCR...");
     }
   }
   
