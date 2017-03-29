@@ -119,7 +119,7 @@ final class OcrInitAsyncTask extends AsyncTask<String, String, Boolean> {
 
     // Check for, and create if necessary, folder to hold model data
     String destinationDirBase = params[0]; // The storage directory, minus the
-                                           // "tessdata" subdirectory
+    // "tessdata" subdirectory
     File tessdataDir = new File(destinationDirBase + File.separator + "tessdata");
     if (!tessdataDir.exists() && !tessdataDir.mkdirs()) {
       Log.e(TAG, "Couldn't make directory " + tessdataDir);
@@ -157,106 +157,108 @@ final class OcrInitAsyncTask extends AsyncTask<String, String, Boolean> {
     // If language data files are not present, install them
     boolean installSuccess = false;
     if (!tesseractTestFile.exists()
-        || (isCubeSupported && !isAllCubeDataInstalled)) {
+            || (isCubeSupported && !isAllCubeDataInstalled)) {
       Log.d(TAG, "Language data for " + languageCode + " not found in " + tessdataDir.toString());
       deleteCubeDataFiles(tessdataDir);
 
       // Check assets for language data to install. If not present, download from Internet
       try {
         Log.d(TAG, "Checking for language data (" + destinationFilenameBase
-            + ".zip) in application assets...");
+                + ".zip) in application assets...");
         // Check for a file like "eng.traineddata.zip" or "tesseract-ocr-3.01.eng.tar.zip"
         installSuccess = installFromAssets(destinationFilenameBase + ".zip", tessdataDir,
-            downloadFile);
+                downloadFile);
       } catch (IOException e) {
         Log.e(TAG, "IOException", e);
       } catch (Exception e) {
         Log.e(TAG, "Got exception", e);
       }
+
 
       if (!installSuccess) {
         // File was not packaged in assets, so download it
-        Log.d(TAG, "Downloading " + destinationFilenameBase + ".gz...");
+//        Log.d(TAG, "Downloading " + destinationFilenameBase + ".gz...");
+//        try {
+//          installSuccess = downloadFile(destinationFilenameBase, downloadFile);
+//          if (!installSuccess) {
+//            Log.e(TAG, "Download failed");
+//            return false;
+//          }
+//        } catch (IOException e) {
+//          Log.e(TAG, "IOException received in doInBackground. Is a network connection available?");
+//          return false;
+//        }
+      }
+
+      } else {
+        Log.d(TAG, "Language data for " + languageCode + " already installed in "
+                + tessdataDir.toString());
+        installSuccess = true;
+      }
+
+      // If OSD data file is not present, download it
+      File osdFile = new File(tessdataDir, CaptureActivity.OSD_FILENAME_BASE);
+      boolean osdInstallSuccess = false;
+      if (!osdFile.exists()) {
+        // Check assets for language data to install. If not present, download from Internet
+        languageName = "orientation and script detection";
         try {
-          installSuccess = downloadFile(destinationFilenameBase, downloadFile);
-          if (!installSuccess) {
-            Log.e(TAG, "Download failed");
-            return false;
+          // Check for, and delete, partially-downloaded OSD files
+          String[] badFiles = {CaptureActivity.OSD_FILENAME + ".gz.download",
+                  CaptureActivity.OSD_FILENAME + ".gz", CaptureActivity.OSD_FILENAME};
+          for (String filename : badFiles) {
+            File file = new File(tessdataDir, filename);
+            if (file.exists()) {
+              file.delete();
+            }
           }
+
+          Log.d(TAG, "Checking for OSD data (" + CaptureActivity.OSD_FILENAME_BASE
+                  + ".zip) in application assets...");
+          // Check for "osd.traineddata.zip"
+          osdInstallSuccess = installFromAssets(CaptureActivity.OSD_FILENAME_BASE + ".zip",
+                  tessdataDir, new File(CaptureActivity.OSD_FILENAME));
         } catch (IOException e) {
-          Log.e(TAG, "IOException received in doInBackground. Is a network connection available?");
-          return false;
-        }
-      }
-
-    } else {
-      Log.d(TAG, "Language data for " + languageCode + " already installed in "
-          + tessdataDir.toString());
-      installSuccess = true;
-    }
-
-    // If OSD data file is not present, download it
-    File osdFile = new File(tessdataDir, CaptureActivity.OSD_FILENAME_BASE);
-    boolean osdInstallSuccess = false;
-    if (!osdFile.exists()) {
-      // Check assets for language data to install. If not present, download from Internet
-      languageName = "orientation and script detection";
-      try {
-        // Check for, and delete, partially-downloaded OSD files
-        String[] badFiles = { CaptureActivity.OSD_FILENAME + ".gz.download",
-            CaptureActivity.OSD_FILENAME + ".gz", CaptureActivity.OSD_FILENAME };
-        for (String filename : badFiles) {
-          File file = new File(tessdataDir, filename);
-          if (file.exists()) {
-            file.delete();
-          }
+          Log.e(TAG, "IOException", e);
+        } catch (Exception e) {
+          Log.e(TAG, "Got exception", e);
         }
 
-        Log.d(TAG, "Checking for OSD data (" + CaptureActivity.OSD_FILENAME_BASE
-            + ".zip) in application assets...");
-        // Check for "osd.traineddata.zip"
-        osdInstallSuccess = installFromAssets(CaptureActivity.OSD_FILENAME_BASE + ".zip",
-            tessdataDir, new File(CaptureActivity.OSD_FILENAME));
-      } catch (IOException e) {
-        Log.e(TAG, "IOException", e);
-      } catch (Exception e) {
-        Log.e(TAG, "Got exception", e);
+        if (!osdInstallSuccess) {
+          // File was not packaged in assets, so download it
+//        Log.d(TAG, "Downloading " + CaptureActivity.OSD_FILENAME + ".gz...");
+//        try {
+//          osdInstallSuccess = downloadFile(CaptureActivity.OSD_FILENAME, new File(tessdataDir,
+//              CaptureActivity.OSD_FILENAME));
+//          if (!osdInstallSuccess) {
+//            Log.e(TAG, "Download failed");
+//            return false;
+//          }
+//        } catch (IOException e) {
+//          Log.e(TAG, "IOException received in doInBackground. Is a network connection available?");
+//          return false;
+//        }
       }
 
-      if (!osdInstallSuccess) {
-        // File was not packaged in assets, so download it
-        Log.d(TAG, "Downloading " + CaptureActivity.OSD_FILENAME + ".gz...");
+        } else {
+          Log.d(TAG, "OSD file already present in " + tessdataDir.toString());
+          osdInstallSuccess = true;
+        }
+
+        // Dismiss the progress dialog box, revealing the indeterminate dialog box behind it
         try {
-          osdInstallSuccess = downloadFile(CaptureActivity.OSD_FILENAME, new File(tessdataDir,
-              CaptureActivity.OSD_FILENAME));
-          if (!osdInstallSuccess) {
-            Log.e(TAG, "Download failed");
-            return false;
-          }
-        } catch (IOException e) {
-          Log.e(TAG, "IOException received in doInBackground. Is a network connection available?");
-          return false;
+          dialog.dismiss();
+        } catch (IllegalArgumentException e) {
+          // Catch "View not attached to window manager" error, and continue
         }
+
+        // Initialize the OCR engine
+        if (baseApi.init(destinationDirBase + File.separator, languageCode, ocrEngineMode)) {
+          return installSuccess && osdInstallSuccess;
+        }
+        return false;
       }
 
-    } else {
-      Log.d(TAG, "OSD file already present in " + tessdataDir.toString());
-      osdInstallSuccess = true;
-    }
-
-    // Dismiss the progress dialog box, revealing the indeterminate dialog box behind it
-    try {
-      dialog.dismiss();
-    } catch (IllegalArgumentException e) {
-      // Catch "View not attached to window manager" error, and continue
-    }
-
-    // Initialize the OCR engine
-    if (baseApi.init(destinationDirBase + File.separator, languageCode, ocrEngineMode)) {
-      return installSuccess && osdInstallSuccess;
-    }
-    return false;
-  }
 
   /**
    * Delete any existing data files for Cube that are present in the given directory. Files may be
