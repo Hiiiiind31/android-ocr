@@ -49,7 +49,6 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
 
 import edu.sfsu.cs.orange.ocr.camera.CameraManager;
 import edu.sfsu.cs.orange.ocr.language.LanguageCodeHelper;
@@ -145,6 +144,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private boolean isPaused;
   private static boolean isFirstLaunch; // True if this is the first time the app is being run
   private TextToSpeech Text_to_speech;
+  private   String  Old_Result = "null";
 
   Handler getHandler() {
     return handler;
@@ -184,7 +184,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       @Override
       public void onInit(int status) {
         if(status != TextToSpeech.ERROR) {
-          Text_to_speech.setLanguage(Locale.ENGLISH);
+          //Text_to_speech.setLanguage(Locale.ENGLISH);
         }
       }
     });
@@ -259,8 +259,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
     if (baseApi != null) {
       baseApi.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);
-      baseApi.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, "");
-      baseApi.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "!?@#$%&*()<>_-+=/.,:;'\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\"");
+      baseApi.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, "!?@#$%&*()<>_-+=/.,:;'\"");
+      baseApi.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\"");
     }
 
     if (hasSurface) {
@@ -532,8 +532,11 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       statusViewTop.getBackground().setAlpha(meanConfidence * (255 / 100));
 
       if (ocrResult.getMeanConfidence()>70){
-        //statusViewTop.setText(ocrResult.getText());
-        Text_to_speech(ocrResult.getText());
+        if (!ocrResult.getText().equals(Old_Result)) {
+          //statusViewTop.setText(ocrResult.getText());
+          Text_to_speech(ocrResult.getText());
+          Old_Result = ocrResult.getText();
+        }
       }
     }
 
@@ -801,6 +804,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    * @param message The error message to be displayed
    */
   void showErrorMessage(String title, String message) {
+    Text_to_speech(message);
 	  new AlertDialog.Builder(this)
 	    .setTitle(title)
 	    .setMessage(message)

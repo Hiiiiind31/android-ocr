@@ -8,6 +8,7 @@ android {
         applicationId "edu.sfsu.cs.orange.ocr"
         minSdkVersion 9
         targetSdkVersion 10
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -22,4 +23,5 @@ dependencies {
     compile 'com.rmtheis:tess-two:6.0.4'
     compile files('libs/json_simple-1.1.jar')
     compile files('libs/jtar-1.0.4.jar')
+    compile 'com.android.support:multidex:1.0.1'
 }
